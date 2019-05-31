@@ -1,12 +1,36 @@
 import React from 'react';
-import Todo from './components/Todo'
 
-function App() {
-  return (
+import Todo from './components/Todo'
+import Header from './components/Header';
+import Auth from './components/Auth';
+import AuthContext from './auth-context';
+
+const App = props =>  {
+
+  const [page, setPage] = React.useState('auth');
+  const [authStatus, setAuthStatus] = React.useState(false);
+  
+  const switchPage = pageName => {
+    setPage(pageName);
+  };
+
+  const login = () => {
+    setAuthStatus(true);  
+  };
+  
+
+    return (
     <div className="App">
-      <Todo/>
+    <AuthContext.Provider value={{status: authStatus, login: login}}>
+      <Header 
+          onLoadTodos={switchPage.bind(this, 'todos')}
+          onLoadAuth={switchPage.bind(this, 'auth')}/>
+        <hr/>
+        {page === 'auth' ? <Auth /> : <Todo/>}    
+    </AuthContext.Provider>
     </div>
-  );
+  )
 }
+
 
 export default App;
