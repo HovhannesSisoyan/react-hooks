@@ -1,6 +1,7 @@
-import React, { useEffect, useReducer, useRef } from 'react';
+import React, { useState, useEffect, useReducer, useRef, useMemo } from 'react';
 import axios from 'axios';
-
+import List from './List'
+import { useFormInput } from '../hooks/forms';
 
 const Todo = (props) => {
 
@@ -9,7 +10,19 @@ const Todo = (props) => {
     
 //  const [todoList, setTodoList] = useState([]);
 //const [todoState, setTodoState] = useState({ userInput: '', todoList: [] })
-const todoInputRef = useRef();
+
+const [inputIsValid, setInputIsValid] = useState(false);
+const todoInput = useFormInput();
+
+const inputIsValidHandler = event => {
+    if (event.target.value.trim() === '') {
+        setInputIsValid(false);
+    } else {
+        setInputIsValid(true);
+    }
+}
+
+//const todoInputRef = useRef();
 
 const todoListReducer = (state, action) => {
     switch (action.type) {
@@ -59,7 +72,7 @@ const todoListReducer = (state, action) => {
 
     const todoAddHandler = () => {
         //setTodoState({ userInput: todoState.userInput, todoList: todoState.todoList.concat(todoState.userInput) });
-        const todoName = todoInputRef.current.value
+        const todoName = todoInput.value
         
         axios.post('https://hook-286c8.firebaseio.com/todos.json',{ name: todoName })
             .then((res => {
@@ -89,14 +102,17 @@ const todoListReducer = (state, action) => {
                 <input
                     type="text"
                     placeholder="Todo"
-                    ref={todoInputRef}
+                    onChange={todoInput.onChange}
+                    value={todoInput.value}
+                    style={{backgroundColor: todoInput.validity === true ? 'transparent' : 'red'}}
                 />
                 <button type="button" onClick={todoAddHandler}>Add</button>
-                <ul>
-                    {todoList.map(todo => (
-                        <li key={todo.id} onClick={todoRemoveHandler.bind(this, todo.id)}>{todo.name}</li>
-                    ))}
-                </ul>
+                {useMemo(
+                    () => (
+                        <List items={todoList} onClick={todoRemoveHandler}/>
+                    ),
+                    [todoList]
+                )}
            </>    
 }
 
